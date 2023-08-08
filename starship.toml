@@ -1,0 +1,57 @@
+# This is a TOML document
+
+#"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts
+add_newline = false
+command_timeout = 1000
+
+format = """
+$os\
+$username\
+$hostname\
+$directory$git_branch $fill\
+$line_break\
+$character"""
+
+[os]
+format ='[╭╴](bright-black)[$symbol](bold white) '
+disabled = false
+
+[os.symbols]
+Windows = ""
+Ubuntu = ""
+
+[username]
+format = '[$user](#a89132)[:](bright-black)'
+disabled = false
+show_always = true
+
+[hostname]
+ssh_only = false
+#format = '[$hostname](bright-black) '
+format = '[$hostname](#A89132) '
+disabled = false
+
+[directory]
+truncation_length = 6
+truncate_to_repo = true
+truncation_symbol = '../ '
+style = "bright-black"
+before_repo_root_style = "#5851A6"
+repo_root_style = "bright-black"
+format = '($before_repo_root_style)[$root_path]($repo_root_style)[$path]($style)' 
+
+[git_branch]
+style = "bright-black"
+#format = '[$symbol](#565C87)[$branch]($style) '
+format = '[$symbol](#9C4040)[$branch]($style) '
+
+[fill]
+symbol = " "
+
+# Replace the '❯' symbol in the prompt with '➜'
+[character]
+#success_symbol = '[╰](#5E425D)[─](#694668)[➜](#734472)' # The 'success_symbol' segment is being
+#success_symbol = '[╰](#756375)[─](#756775)[➜](#736D73)' # The 'success_symbol' segment is being
+success_symbol = '[╰─➜](bright-black)' # The 'success_symbol' segment is being
