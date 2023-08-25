@@ -5,6 +5,13 @@
 ##
 
 # ============================
+# User Options
+# ============================
+param( 
+[string[]] $Quartus
+)
+
+# ============================
 # Make Prefered File Structure
 # ============================
 
@@ -17,6 +24,9 @@ mkdir "$home/Projects"
 # ============================
 # Install Various Programs
 # ============================
+
+# Attach and share usb devices w/ WSL
+winget install usbipd
 
 # Update Powershell to most recent
 winget install --id Microsoft.Powershell --source winget
@@ -71,26 +81,71 @@ git clone https://github.com/preservim/nerdtree ~/vimfiles/pack/NERDTree/start/
 # ============================
 # Install Quartus
 # ============================
+foreach( $Q_DL in $Quartus )
+{
+  $Q_PATH = $env:Path
 
-$LITE_DL = https://downloads.intel.com/akdlm/software/acdsinst/18.1std/625/ib_tar/Quartus-lite-18.1.0.625-windows.tar
-$STANDARD_DL = https://downloads.intel.com/akdlm/software/acdsinst/18.1std/625/ib_tar/Quartus-18.1.0.625-windows-complete.tar
-$PRO_DL = https://downloads.intel.com/akdlm/software/acdsinst/19.3/222/ib_tar/Quartus-pro-19.3.0.222-windows-complete.tar
+  Switch( $Q_DL )
+  {
+    "help"
+    {
+      "Options:"
+      "18.1.0-lite"
+      "18.1.0-std"
+      "19.3.0-pro"
+      "20.1.1-lite"
+    }
 
-# Install Quartus Lite 18.1
-start-BitsTransfer -Source LITE_DL -Destination ~/Downloads
-mkdir ~/Downloads/quartus-lite
-tar -xvzf ~/Downloads/Quartus-lite-18.1.0.625-windows.tar -C ~/Downloads/quartus-lite
-start-process ~/Downloads/quartus-lite/setup.bat
+    "18.1.0-lite"
+    {
+      "Quartus DL: $Q_DL"
+      $Q_DL_URL = "https://downloads.intel.com/akdlm/software/acdsinst/18.1std/625/ib_tar/Quartus-lite-18.1.0.625-windows.tar"
+      $Q_DL_PATH = "$home/Downloads/Quartus-lite-18.1.0.625-windows.tar"
+      $Q_DIR = "$home/Downloads/Quartus-18.1.0-lite.tar"
+      $Q_PATH += ";C:\intelFPGA_lite\18.1\quartus\bin64"
+    }
 
-# Install Quartus Standard 18.1
-start-BitTransfer -Source STANDARD_DL -Destination ~/Downloads
-mkdir ~/Downloads/quartus-standard
-tar -xvzf ~/Downloads/Quartus-18.1.0.625-windows-complete.tar -C ~/Downloads/quartus-standard
-start-process ~/Downloads/quartus-standard/setup.bat
+    "18.1.0-std"
+    {
+      "Quartus DL: $Q_DL"
+      $Q_DL_URL = "https://downloads.intel.com/akdlm/software/acdsinst/18.1std/625/ib_tar/Quartus-18.1.0.625-windows-complete.tar"
+      $Q_DL_PATH = "$home/Downloads/Quartus-18.1.0.625-windows-complete.tar"
+      $Q_DIR = "$home/Downloads/Quartus-18.1.0-std.tar"
+    }
 
-# Install Quartus Pro 19.3
-start-BitTransfer -Source PRO_DL -Destination ~/Downloads
-mkdir ~/Downloads/quartus-pro
-tar -xvzf ~/Downloads/Quartus-pro-19.3.0.222-windows-complete.tar -C ~/Downloads/quartus-pro
-start-process ~/Downloads/quartus-pro/setup.bat
+    "19.3.0-pro"
+    {
+      "Quartus DL: $Q_DL"
+      $Q_DL_URL = "https://downloads.intel.com/akdlm/software/acdsinst/19.3/222/ib_tar/Quartus-pro-19.3.0.222-windows-complete.tar"
+      $Q_DL_PATH = "$home/Downloads/Quartus-pro-19.3.0.222-windows-complete.tar"
+      $Q_DIR = "$home/Downloads/Quartus-19.3.0-pro"
+    }
 
+    "20.1.1-lite"
+    {
+      "Quartus DL: $Q_DL"
+      $Q_DL_URL = "https://downloads.intel.com/akdlm/software/acdsinst/20.1std.1/720/ib_tar/Quartus-lite-20.1.1.720-windows.tar"
+      $Q_DL_PATH = "$home/Downloads/Quartus-lite-20.1.1.720-windows.tar"
+      $Q_DIR = "$home/Downloads/Quartus-20.1.1-lite"
+      $Q_PATH += ';C:\intelFPGA_lite\20.1\quartus\bin64'
+    }
+    default 
+    { 
+      "$Q_DL does not match any Quartus Downloads" 
+      continue
+    }
+  }
+
+  Invoke-WebRequest $Q_DL_URL -Outfile $Q_DL_PATH
+
+  if( !(Test-Path $Q_DIR -PathType Container ))
+  { New-Item -ItemType Directory -Force -Path $Q_DIR }
+
+  tar -xvzf $Q_DL_PATH -C $Q_DIR
+  start-process $Q_DIR/setup.bat
+
+ [Environment]::SetEnvironmentVariable( "Path", $Q_PATH, [System.EnvironmentVariableTarget]::Machine )  
+
+  rm -r $Q_DIR
+  rm -r $Q_DL_PATH 
+}
