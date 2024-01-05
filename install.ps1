@@ -5,21 +5,29 @@
 ##
 
 # ============================
+# Paths
+# ============================
+
+$LOCAL_INSTALL = "$home\AppData\Local"
+$PROJECTS = "$home/Projects"
+$STARSHIP_CONFIG = "$home/.config"
+$POWERSHELL_SETTINGS = "$home/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/"
+$VIMFILES_PATH = "$home/vimfiles"
+
+# ============================
 # User Options
 # ============================
-param( 
-[string[]] $Quartus
-)
+
+#param( 
+#[string[]] $Quartus
+#)
 
 # ============================
 # Make Prefered File Structure
 # ============================
 
-# Nonadmin install user specific
-$LOCAL_INSTALL = "$home\AppData\Local"
-
 # For all local programming projects
-mkdir "$home/Projects"
+mkdir $PROJECTS
 
 # ============================
 # Install Various Programs
@@ -28,22 +36,50 @@ mkdir "$home/Projects"
 # Attach and share usb devices w/ WSL
 winget install usbipd
 
+# ============================
+# Powershell
+# ============================
+
 # Update Powershell to most recent
 winget install --id Microsoft.Powershell --source winget
+
+# Copy profile
+cp profile.ps1 $PROFILE
+
+# Copy prefered settings
+cp settings.json $POWERSHELL_SETTINGS/settings.json
+
+# ============================
+# Install Git
+# ============================
 
 # Install git
 winget install -e --id Git.Git
 
-# Install nerdfonts ( prereq for starship idk why)
+# Add to system PATH
+setx /M PATH "$Env:PATH;C:\Program Files\Git\cmd"
+
+# Add to system PATH (current session)
+set /M PATH "$Env:PATH;C:\Program Files\Git\cmd"
+
+# ============================
+# Install Starship
+# ============================
+
+# Install nerdfonts ( prereq for starship)
 git clone --filter=blob:none --sparse https://github.com/ryanoasis/nerd-fonts.git $LOCAL_INSTALL/nerd-fonts
 cd $LOCAL_INSTALL/nerd-fonts
 git sparse-checkout add patched-fonts/JetBrainsMono
-cd ~/
+./install.ps1 JetBrainsMono
+cd $home
 
 # Install Starship 
 # - Allows me to customize terminal and make it more efficient/comfortable to program in
 # - Website https://starship.rs/ 
 winget install starship
+
+mkdir $STARSHIP_CONFIG
+cp starship.toml $STARSHIP_CONFIG/starship.toml
 
 # ============================
 # Install Python Setup
@@ -68,19 +104,30 @@ python -m pip install "kivy[base]" kivy_examples
 # Install text editor (Vim)
 winget install -e --id vim.vim
 
+# Add to PATH
+setx /M PATH "$Env:PATH;C:\Program Files\Vim\vim90"
+
+# Add to current PATH
+set /M PATH "$Env:PATH;C:\Program Files\Vim\vim90"
+
 # Create directories for editor config files and packages
-mkdir ~/vimfiles 
-mkdir ~/vimfiles/backup 
-mkdir ~/vimfiles/pack 
-mkdir ~/vimfiles/swap
+mkdir $VIMFILES_PATH 
+mkdir $VIMFILES_PATH/backup 
+mkdir $VIMFILES_PATH/pack 
+mkdir $VIMFILES_PATH/swap
+
+# Copy vim settings
+cp vimrc $VIMFILES_PATH/vimrc
 
 # NERDTree (file explorer)
 mkdir ~/vimfiles/pack/NERDTree/start
-git clone https://github.com/preservim/nerdtree ~/vimfiles/pack/NERDTree/start/
+cd ~/vimfiles/pack/NERDTree/start
+git clone https://github.com/preservim/nerdtree
 
 # ============================
 # Install Quartus
 # ============================
+<#
 foreach( $Q_DL in $Quartus )
 {
   $Q_PATH = $env:Path
@@ -149,3 +196,5 @@ foreach( $Q_DL in $Quartus )
   rm -r $Q_DIR
   rm -r $Q_DL_PATH 
 }
+#>
+
