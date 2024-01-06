@@ -25,16 +25,8 @@ $VIMFILES_PATH = "$home/vimfiles"
 # ============================
 # Make Prefered File Structure
 # ============================
-
 # For all local programming projects
 mkdir $PROJECTS
-
-# ============================
-# Install Various Programs
-# ============================
-
-# Attach and share usb devices w/ WSL
-winget install usbipd
 
 # ============================
 # Powershell
@@ -61,6 +53,9 @@ setx /M PATH "$Env:PATH;C:\Program Files\Git\cmd"
 
 # Add to system PATH (current session)
 set /M PATH "$Env:PATH;C:\Program Files\Git\cmd"
+
+# Make SSH key
+ssh-keygen -b 4096
 
 # ============================
 # Install Starship
@@ -123,6 +118,22 @@ cp vimrc $VIMFILES_PATH/vimrc
 mkdir ~/vimfiles/pack/NERDTree/start
 cd ~/vimfiles/pack/NERDTree/start
 git clone https://github.com/preservim/nerdtree
+
+# ============================
+# Install VeraCrypt
+# ============================
+$VC_DL_URL = "https://launchpad.net/veracrypt/trunk/1.26.7/+download/VeraCrypt%20Setup%201.26.7.exe"
+Invoke-WebRequest $VC_DL_URL -Outfile $home/Downloads/veracrypt.exe
+cd $home/Downloads
+./veracrypt.exe
+
+# ============================
+# Install WSL
+# ============================
+wsl --install -d Ubuntu-22.04
+
+# Attach and share usb devices w/ WSL
+winget install usbipd
 
 # ============================
 # Install Quartus
