@@ -8,6 +8,7 @@
 # Paths
 # ============================
 
+$WINDOWS_FILES = "$PWD\WindowsFiles\"
 $LOCAL_INSTALL = "$home\AppData\Local"
 $PROJECTS = "$home/Projects"
 $STARSHIP_CONFIG = "$home/.config"
@@ -39,7 +40,7 @@ winget install --id Microsoft.Powershell --source winget
 cp profile.ps1 $PROFILE
 
 # Copy prefered settings
-cp settings.json $POWERSHELL_SETTINGS/settings.json
+cp WindowsFiles/settings.json $POWERSHELL_SETTINGS/settings.json
 
 # ============================
 # Install Git
@@ -74,7 +75,7 @@ cd $home
 winget install starship
 
 mkdir $STARSHIP_CONFIG
-cp starship.toml $STARSHIP_CONFIG/starship.toml
+cp WindowsFiles/starship.toml $STARSHIP_CONFIG/starship.toml
 
 # ============================
 # Install Python Setup
@@ -112,7 +113,7 @@ mkdir $VIMFILES_PATH/pack
 mkdir $VIMFILES_PATH/swap
 
 # Copy vim settings
-cp vimrc $VIMFILES_PATH/vimrc
+cp WindowsFiles/vimrc $VIMFILES_PATH/vimrc
 
 # NERDTree (file explorer)
 mkdir ~/vimfiles/pack/NERDTree/start
@@ -126,14 +127,25 @@ $VC_DL_URL = "https://launchpad.net/veracrypt/trunk/1.26.7/+download/VeraCrypt%2
 Invoke-WebRequest $VC_DL_URL -Outfile $home/Downloads/veracrypt.exe
 cd $home/Downloads
 ./veracrypt.exe
+cd $home
 
 # ============================
 # Install WSL
 # ============================
 wsl --install -d Ubuntu-22.04
 
+# WSL must be shutdown before using (restarting windows will also work)
+wsl.exe --shutdown
+wsl.exe -t Ubuntu-22.04
+
 # Attach and share usb devices w/ WSL
 winget install usbipd
+
+# Install script for WSL
+mkdir LinuxFiles
+cd LinuxFiles
+git clone git@github.com:ARICKERT0003/LinuxSetup.git
+
 
 # ============================
 # Install Quartus
